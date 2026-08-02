@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+     xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>SyncMyLibs Updates</title>
+        <link>https://syncmylibs.app</link>
+        <description>Release feed for SyncMyLibs.</description>
+        <language>en</language>
+        <!-- Newest release first. Items are appended by the release ceremony:
+             scripts/release.sh emits release-artifacts/<version>/appcast-entry.txt
+             ready to paste here. Empty until v1.0 ships. -->
+    </channel>
+</rss>

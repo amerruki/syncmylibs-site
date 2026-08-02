@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SyncMyLibs — manage all your Apple Photos libraries at once</title>
+<meta name="description" content="SyncMyLibs is a native macOS app that opens multiple Apple Photos libraries side by side — browse, compare, and transfer photos with faces, keywords, albums, GPS and edits fully preserved.">
+<style>
+  :root {
+    --bg: #fbfbfd; --fg: #1d1d1f; --muted: #6e6e73; --accent: #0071e3;
+    --card: #ffffff; --border: #e5e5ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #101014; --fg: #f5f5f7; --muted: #98989d; --accent: #2997ff;
+            --card: #1b1b20; --border: #2c2c31; }
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: var(--bg); color: var(--fg);
+    display: flex; min-height: 100vh; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  main { max-width: 40rem; text-align: center; }
+  h1 { font-size: 2.6rem; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .tagline { font-size: 1.25rem; color: var(--muted); margin-bottom: 2rem; }
+  .pitch { text-align: left; background: var(--card); border: 1px solid var(--border);
+           border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+  .pitch ul { padding-left: 1.2rem; }
+  .pitch li { margin: 0.35rem 0; }
+  .cta { display: inline-block; padding: 0.7rem 1.6rem; border-radius: 999px;
+         background: var(--accent); color: #fff; text-decoration: none; font-weight: 600; }
+  .cta[aria-disabled="true"] { opacity: 0.55; pointer-events: none; }
+  .fineprint { margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>SyncMyLibs</h1>
+  <p class="tagline">All your Apple Photos libraries, open at once.</p>
+  <div class="pitch">
+    <ul>
+      <li>Browse and compare multiple <code>.photoslibrary</code> bundles side by side</li>
+      <li>Transfer photos between libraries — faces, people, keywords, GPS, albums, dates and edits preserved</li>
+      <li>Five duplicate-detection algorithms, date repair, screenshot tagging, people management</li>
+      <li>Byte-lossless: your originals are never re-encoded</li>
+    </ul>
+  </div>
+  <a class="cta" aria-disabled="true" href="#">Download — coming soon</a>
+  <p class="fineprint">Requires macOS 15 or later · Apple silicon</p>
+</main>
+</body>
+</html>
