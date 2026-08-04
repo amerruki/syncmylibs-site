@@ -3,56 +3,449 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SyncMyLibs — manage all your Apple Photos libraries at once</title>
-<meta name="description" content="SyncMyLibs is a native macOS app that opens multiple Apple Photos libraries side by side — browse, compare, and transfer photos with faces, keywords, albums, GPS and edits fully preserved.">
+<title>SyncMyLibs — every Apple Photos library, open at once</title>
+<meta name="description" content="SyncMyLibs is a native macOS app that opens multiple Apple Photos libraries side by side — browse, compare, and transfer photos with faces, keywords, albums, GPS and edits fully preserved. Byte-lossless, always.">
 <link rel="icon" type="image/png" href="/icon.png">
 <link rel="apple-touch-icon" href="/icon.png">
 <meta property="og:title" content="SyncMyLibs">
-<meta property="og:description" content="All your Apple Photos libraries, open at once.">
+<meta property="og:description" content="Every Apple Photos library, open at once. Native. Lossless. Notarized.">
 <meta property="og:image" content="https://syncmylibs.app/icon.png">
+<meta property="og:url" content="https://syncmylibs.app">
 <style>
+/* ============ tokens ============ */
+:root {
+  --serif: "New York", ui-serif, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+
+  --azure: #52a6f8;
+  --indigo: #1d47b8;
+  --deep: #16204f;
+  --amber: #ffc24a;
+  --amber-ink: #7a4d00;
+
+  --bg: #f6f8fc;
+  --ink: #131a33;
+  --muted: #5a6379;
+  --card: rgba(255, 255, 255, 0.62);
+  --card-solid: #ffffff;
+  --line: rgba(19, 26, 51, 0.10);
+  --glow: rgba(82, 166, 248, 0.22);
+  --shadow: 0 24px 60px -24px rgba(22, 32, 79, 0.35);
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #fbfbfd; --fg: #1d1d1f; --muted: #6e6e73; --accent: #0071e3;
-    --card: #ffffff; --border: #e5e5ea;
+    --bg: #0b1026;
+    --ink: #eef2fb;
+    --muted: #97a1bd;
+    --card: rgba(23, 30, 62, 0.55);
+    --card-solid: #171e3e;
+    --line: rgba(238, 242, 251, 0.10);
+    --glow: rgba(82, 166, 248, 0.18);
+    --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
   }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #101014; --fg: #f5f5f7; --muted: #98989d; --accent: #2997ff;
-            --card: #1b1b20; --border: #2c2c31; }
+}
+
+/* ============ base ============ */
+* { margin: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font: 17px/1.65 var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+::selection { background: var(--azure); color: #fff; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--azure); outline-offset: 3px; border-radius: 4px; }
+
+/* atmosphere: two soft radial washes + grain, fixed behind everything */
+.atmo {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(52rem 36rem at 82% -8%, var(--glow), transparent 65%),
+    radial-gradient(44rem 30rem at -10% 42%, rgba(29, 71, 184, 0.14), transparent 60%);
+}
+.atmo::after {
+  content: ""; position: absolute; inset: 0; opacity: 0.028; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ============ nav ============ */
+nav {
+  position: sticky; top: 0.9rem; z-index: 10;
+  margin: 0.9rem auto 0; max-width: 68rem; padding: 0 1.5rem;
+}
+.navbar {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.55rem 0.9rem; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line);
+  backdrop-filter: blur(22px) saturate(1.5); -webkit-backdrop-filter: blur(22px) saturate(1.5);
+}
+.navbar img { width: 30px; height: 30px; }
+.navbar strong { font-size: 1rem; letter-spacing: -0.01em; }
+.navbar .links { margin-left: auto; display: flex; gap: 1.1rem; align-items: center; font-size: 0.92rem; }
+.navbar .links a { text-decoration: none; color: var(--muted); }
+.navbar .links a:hover { color: var(--ink); }
+.pill {
+  padding: 0.42rem 1rem; border-radius: 999px; text-decoration: none;
+  background: var(--ink); color: var(--bg) !important; font-weight: 600; font-size: 0.9rem;
+}
+
+/* ============ hero ============ */
+header { padding: 5.5rem 0 4rem; position: relative; }
+.kicker {
+  font: 600 0.78rem/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--azure); margin-bottom: 1.3rem;
+}
+h1 {
+  font-family: var(--serif); font-weight: 600; letter-spacing: -0.015em;
+  font-size: clamp(2.5rem, 6.5vw, 4.4rem); line-height: 1.07; max-width: 17ch;
+}
+h1 em { font-style: italic; color: var(--indigo); }
+@media (prefers-color-scheme: dark) { h1 em { color: var(--azure); } }
+.lede { margin: 1.5rem 0 2.2rem; font-size: 1.22rem; color: var(--muted); max-width: 44ch; }
+.cta-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.cta {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.85rem 1.7rem; border-radius: 999px; text-decoration: none;
+  background: linear-gradient(180deg, #ffd685, var(--amber));
+  color: var(--amber-ink); font-weight: 700; font-size: 1.02rem;
+  box-shadow: 0 12px 30px -10px rgba(255, 194, 74, 0.55);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.cta:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -10px rgba(255, 194, 74, 0.65); }
+.cta small { font-weight: 600; opacity: 0.75; }
+.sysreq { font: 0.8rem/1.5 var(--mono); color: var(--muted); }
+
+/* hero diorama: two mac-window library cards + sync ring */
+.diorama {
+  position: relative; margin: 4.5rem auto 0; height: 24rem; max-width: 46rem;
+}
+.ring {
+  position: absolute; inset: 50% auto auto 50%; width: 30rem; height: 30rem;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  border: 2.5px solid var(--line);
+}
+.ring::before {
+  content: ""; position: absolute; inset: -2.5px; border-radius: 50%;
+  border: 2.5px solid transparent;
+  border-top-color: var(--azure); border-right-color: var(--azure);
+  animation: orbit 14s linear infinite;
+}
+.sun {
+  position: absolute; width: 0.9rem; height: 0.9rem; border-radius: 50%;
+  background: var(--amber); box-shadow: 0 0 18px rgba(255, 194, 74, 0.8);
+  top: 8%; left: 76%;
+}
+@keyframes orbit { to { transform: rotate(360deg); } }
+
+.libwin {
+  position: absolute; width: 24rem; max-width: 72vw; border-radius: 14px;
+  background: var(--card-solid); border: 1px solid var(--line);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.libwin .bar {
+  display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--line); font: 500 0.72rem var(--sans); color: var(--muted);
+}
+.dot { width: 0.62rem; height: 0.62rem; border-radius: 50%; }
+.dot:nth-child(1) { background: #ff5f57; } .dot:nth-child(2) { background: #febc2e; }
+.dot:nth-child(3) { background: #28c840; }
+.libwin .bar span { margin-left: 0.4rem; }
+.thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 8px; }
+.thumbs i { aspect-ratio: 1; border-radius: 4px; display: block; }
+.win-a { left: 1%; top: 14%; transform: rotate(-5deg); }
+.win-b { right: 1%; top: 34%; transform: rotate(3deg); }
+
+/* thumbnail mosaic hues — photographic gradients, no images needed */
+.t1 { background: linear-gradient(135deg, #7fb7f2, #2e5da8); }
+.t2 { background: linear-gradient(135deg, #f2b06b, #c66a2e); }
+.t3 { background: linear-gradient(135deg, #74c69d, #2d6a4f); }
+.t4 { background: linear-gradient(135deg, #e8e2d5, #a89f8d); }
+.t5 { background: linear-gradient(135deg, #b6a1e0, #6b4fa8); }
+.t6 { background: linear-gradient(135deg, #f28c8c, #a83a3a); }
+.t7 { background: linear-gradient(135deg, #8ed3e8, #3a7ca8); }
+.t8 { background: linear-gradient(135deg, #384860, #131a2c); }
+
+/* ============ sections ============ */
+section { padding: 4.5rem 0; }
+h2 {
+  font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em;
+  font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; max-width: 24ch;
+  margin-bottom: 1rem;
+}
+.sub { color: var(--muted); max-width: 52ch; margin-bottom: 2.6rem; }
+
+/* why strip */
+.why {
+  border-block: 1px solid var(--line);
+  background: var(--card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.why .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.why p { color: var(--muted); }
+.why p strong { color: var(--ink); }
+.why .fact { font: 0.82rem/1.9 var(--mono); color: var(--muted); }
+.why .fact b { color: var(--azure); font-weight: 600; }
+@media (max-width: 46rem) { .why .wrap { grid-template-columns: 1fr; gap: 1.6rem; } }
+
+/* features */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+@media (max-width: 52rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 34rem) { .grid { grid-template-columns: 1fr; } }
+.feature {
+  padding: 1.5rem 1.4rem; border-radius: 16px;
+  background: var(--card); border: 1px solid var(--line);
+  backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.feature:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.feature svg { width: 26px; height: 26px; stroke: var(--azure); stroke-width: 1.7; fill: none;
+  stroke-linecap: round; stroke-linejoin: round; margin-bottom: 0.8rem; }
+.feature h3 { font-size: 1.02rem; margin-bottom: 0.35rem; letter-spacing: -0.005em; }
+.feature p { font-size: 0.92rem; color: var(--muted); }
+
+/* comparison */
+.compare table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.compare th, .compare td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--line); }
+.compare th { font: 600 0.78rem/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.compare td:not(:first-child) { text-align: center; }
+.yes { color: #28a745; font-weight: 700; }
+.no { color: var(--muted); }
+.compare .note { margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+.tablecard {
+  border-radius: 16px; border: 1px solid var(--line); background: var(--card);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  padding: 0.5rem 0.5rem 1rem; overflow-x: auto;
+}
+
+/* safety */
+.safety { text-align: center; }
+.safety h2 { margin-inline: auto; }
+.safety .sub { margin-inline: auto; }
+.badges { display: flex; gap: 2.4rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+.badge { max-width: 15rem; }
+.badge b { display: block; font-family: var(--serif); font-size: 1.5rem; font-weight: 600; }
+.badge span { font-size: 0.88rem; color: var(--muted); }
+
+/* faq */
+details {
+  border-bottom: 1px solid var(--line); padding: 1.1rem 0.2rem;
+}
+summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--azure); font-weight: 400; font-size: 1.2rem; }
+details[open] summary::after { content: "–"; }
+details p { margin-top: 0.7rem; color: var(--muted); max-width: 60ch; }
+
+/* footer */
+footer { padding: 3.5rem 0 4rem; border-top: 1px solid var(--line); }
+footer .wrap { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+footer img { width: 26px; height: 26px; }
+footer small { color: var(--muted); }
+footer .links { margin-left: auto; display: flex; gap: 1.4rem; font-size: 0.88rem; }
+footer .links a { color: var(--muted); text-decoration: none; }
+footer .links a:hover { color: var(--ink); }
+
+/* ============ motion ============ */
+.rise { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.rise.d1 { animation-delay: 0.08s; } .rise.d2 { animation-delay: 0.16s; }
+.rise.d3 { animation-delay: 0.24s; } .rise.d4 { animation-delay: 0.36s; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+@supports (animation-timeline: view()) {
+  section .feature, .tablecard, .badge {
+    animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 42%;
   }
-  * { margin: 0; box-sizing: border-box; }
-  body {
-    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    background: var(--bg); color: var(--fg);
-    display: flex; min-height: 100vh; align-items: center; justify-content: center;
-    padding: 2rem;
-  }
-  main { max-width: 40rem; text-align: center; }
-  h1 { font-size: 2.6rem; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
-  .tagline { font-size: 1.25rem; color: var(--muted); margin-bottom: 2rem; }
-  .pitch { text-align: left; background: var(--card); border: 1px solid var(--border);
-           border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
-  .pitch ul { padding-left: 1.2rem; }
-  .pitch li { margin: 0.35rem 0; }
-  .cta { display: inline-block; padding: 0.7rem 1.6rem; border-radius: 999px;
-         background: var(--accent); color: #fff; text-decoration: none; font-weight: 600; }
-  .cta[aria-disabled="true"] { opacity: 0.55; pointer-events: none; }
-  .fineprint { margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
 </style>
 </head>
 <body>
-<main>
-  <h1>SyncMyLibs</h1>
-  <p class="tagline">All your Apple Photos libraries, open at once.</p>
-  <div class="pitch">
-    <ul>
-      <li>Browse and compare multiple <code>.photoslibrary</code> bundles side by side</li>
-      <li>Transfer photos between libraries — faces, people, keywords, GPS, albums, dates and edits preserved</li>
-      <li>Five duplicate-detection algorithms, date repair, screenshot tagging, people management</li>
-      <li>Byte-lossless: your originals are never re-encoded</li>
-    </ul>
+<div class="atmo" aria-hidden="true"></div>
+
+<nav aria-label="Main">
+  <div class="navbar">
+    <img src="/icon.png" alt="" width="30" height="30">
+    <strong>SyncMyLibs</strong>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#compare">Compare</a>
+      <a href="#faq">FAQ</a>
+      <a class="pill" href="#download">Download</a>
+    </div>
   </div>
-  <a class="cta" aria-disabled="true" href="#">Download — coming soon</a>
-  <p class="fineprint">Requires macOS 15 or later · Apple silicon</p>
-</main>
+</nav>
+
+<header class="wrap" id="download">
+  <p class="kicker rise">Native macOS · Notarized by Apple</p>
+  <h1 class="rise d1">Photos opens one library.<br><em>You have more than one.</em></h1>
+  <p class="lede rise d2">SyncMyLibs opens every Apple Photos library you own — side by side. Browse, compare, and move photos between them with faces, people, keywords, albums, GPS, dates and edits intact.</p>
+  <div class="cta-row rise d3">
+    <a class="cta" href="https://github.com/amerruki/syncmylibs-site/releases" aria-describedby="sysreq">
+      Download for macOS <small>· coming soon</small>
+    </a>
+    <p class="sysreq" id="sysreq">macOS 15+ · Apple silicon · one-time purchase</p>
+  </div>
+
+  <div class="diorama rise d4" aria-hidden="true">
+    <div class="ring"></div>
+    <div class="sun"></div>
+    <div class="libwin win-a">
+      <div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>Family.photoslibrary — 41,882 items</span></div>
+      <div class="thumbs">
+        <i class="t1"></i><i class="t3"></i><i class="t2"></i><i class="t7"></i><i class="t4"></i>
+        <i class="t6"></i><i class="t8"></i><i class="t1"></i><i class="t5"></i><i class="t3"></i>
+        <i class="t2"></i><i class="t4"></i><i class="t7"></i><i class="t6"></i><i class="t1"></i>
+      </div>
+    </div>
+    <div class="libwin win-b">
+      <div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>Archive-2019.photoslibrary — 12,304 items</span></div>
+      <div class="thumbs">
+        <i class="t5"></i><i class="t2"></i><i class="t8"></i><i class="t3"></i><i class="t7"></i>
+        <i class="t1"></i><i class="t4"></i><i class="t6"></i><i class="t2"></i><i class="t8"></i>
+        <i class="t3"></i><i class="t1"></i><i class="t5"></i><i class="t4"></i><i class="t7"></i>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="why">
+  <div class="wrap">
+    <div>
+      <h2>Built against a real constraint.</h2>
+      <p>Apple Photos manages exactly one library at a time — switching means quitting, reopening, and losing your place. Anyone with an archive drive, a family library, or years of exported projects knows the dance. <strong>SyncMyLibs removes the dance.</strong> Every library opens at once, and photos move between them without losing what makes them yours.</p>
+    </div>
+    <p class="fact">
+      transfers preserve → <b>faces &amp; people</b> · <b>keywords</b> · <b>albums &amp; folders</b> · <b>GPS</b> · <b>dates</b> · <b>edits</b> · <b>RAW+JPEG pairs</b><br>
+      re-encoding of your originals → <b>never</b><br>
+      backup before every risky write → <b>always</b>
+    </p>
+  </div>
+</section>
+
+<section class="wrap" id="features">
+  <h2>What it does all day.</h2>
+  <p class="sub">One window, every library — and the tools Photos never grew.</p>
+  <div class="grid">
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="13" height="10" rx="2"/><rect x="9" y="9" width="13" height="10" rx="2"/></svg>
+      <h3>True transfer</h3>
+      <p>Move photos between libraries with faces, people, keywords, albums, GPS, dates and edits carried over — not stripped.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><circle cx="16" cy="15" r="5.5"/></svg>
+      <h3>Five-way duplicate hunt</h3>
+      <p>Five detection algorithms — including Apple's own perceptual hash — find real dupes across libraries, safely.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.2-3.8 4-5.6 7.5-5.6s6.3 1.8 7.5 5.6"/></svg>
+      <h3>People, managed</h3>
+      <p>Rename, merge, hide, and repair People across libraries — operations Photos reserves for one library at a time.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+      <h3>Screenshot tagger</h3>
+      <p>Mark screenshots and screen recordings in bulk so they filter properly — synced across your devices.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
+      <h3>Date repair</h3>
+      <p>Recover real capture dates from filenames, embedded text, and metadata — WhatsApp exports included.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9 12l2 2 4-4.5"/></svg>
+      <h3>Lossless, guaranteed</h3>
+      <p>Your originals are never re-encoded. Metadata writes go through exiftool — the archival standard — or don't happen.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>
+      <h3>Undo that means it</h3>
+      <p>Snapshots before destructive operations. Merges, deletes, and transfers can be walked back.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 15A4.5 4.5 0 0 1 7 6a5.5 5.5 0 0 1 10.6 1.5A4 4 0 0 1 17 15z"/><path d="M12 12v7m-2.5-2.5L12 19l2.5-2.5"/></svg>
+      <h3>iCloud aware</h3>
+      <p>Works with your iCloud system library through Apple's own PhotoKit — changes sync to your other devices properly.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 13.5h5L11 21l8-10.5h-5z"/></svg>
+      <h3>Fast where it counts</h3>
+      <p>Library-to-library merges run about 12× faster than the AppleScript bridges other tools rely on.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap compare" id="compare">
+  <h2>Honest comparison.</h2>
+  <p class="sub">PowerPhotos is a fine app — here's exactly where we differ.</p>
+  <div class="tablecard">
+    <table>
+      <thead><tr><th scope="col">Capability</th><th scope="col">SyncMyLibs</th><th scope="col">PowerPhotos</th></tr></thead>
+      <tbody>
+        <tr><td>Faces &amp; People survive transfer</td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Duplicate detection algorithms</td><td class="yes">5</td><td class="no">1</td></tr>
+        <tr><td>People management (rename, merge, hide)</td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Screenshot tagging with cross-device sync</td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Date extraction &amp; repair</td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Direct library engine (no AppleScript bridge)</td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Mac App Store distribution</td><td class="no">—</td><td class="yes">✓</td></tr>
+      </tbody>
+    </table>
+    <p class="note">App Store distribution is a deliberate trade: sandboxed apps can't reach other libraries' databases. SyncMyLibs ships signed and notarized by Apple instead — same Gatekeeper screening, more capability.</p>
+  </div>
+</section>
+
+<section class="safety">
+  <div class="wrap">
+    <h2>Your photos are irreplaceable.<br>The app is built like it knows that.</h2>
+    <p class="sub">Every engineering decision starts from one rule: no data loss, ever.</p>
+    <div class="badges">
+      <div class="badge"><b>0</b><span>re-encodes of your originals — transfers are byte-identical</span></div>
+      <div class="badge"><b>Backup first</b><span>a safety copy precedes every risky write, automatically</span></div>
+      <div class="badge"><b>Notarized</b><span>signed with a Developer ID and screened by Apple on every release</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="faq">
+  <h2>Questions, answered.</h2>
+  <details>
+    <summary>Is it safe to point this at my real library?</summary>
+    <p>Yes — that's the design constraint everything else serves. Originals are never re-encoded, risky operations snapshot first, writes to your iCloud system library go through Apple's own PhotoKit, and destructive actions have working undo.</p>
+  </details>
+  <details>
+    <summary>Does it work with iCloud Photos?</summary>
+    <p>Yes. Your system library keeps syncing normally — changes made through SyncMyLibs propagate to your other devices the same way Photos' own changes do. Offline libraries on external drives work too.</p>
+  </details>
+  <details>
+    <summary>Why does it need Full Disk Access?</summary>
+    <p>Photos libraries other than your system library live behind macOS file protections. Full Disk Access lets SyncMyLibs open them directly — it's the same requirement any multi-library tool has, and the app asks once with an explanation.</p>
+  </details>
+  <details>
+    <summary>Which Macs does it run on?</summary>
+    <p>macOS 15 (Sequoia) or later on Apple silicon. It's a native Swift app — no Electron, no web views.</p>
+  </details>
+  <details>
+    <summary>How much will it cost?</summary>
+    <p>One-time purchase, priced at launch — no subscription. Updates arrive in-app.</p>
+  </details>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img src="/icon.png" alt="">
+    <small>© 2026 Mamoun Arfal · SyncMyLibs for macOS</small>
+    <div class="links">
+      <a href="https://github.com/amerruki/syncmylibs-site/issues/new">Support</a>
+      <a href="/appcast.xml">Release feed</a>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
