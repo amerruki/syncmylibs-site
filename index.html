@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="/icon.png">
 <link rel="apple-touch-icon" href="/icon.png">
 <meta property="og:title" content="SyncMyLibs">
-<meta property="og:description" content="Every Apple Photos library, open at once. Native. Lossless. Notarized.">
+<meta property="og:description" content="Every Apple Photos library, open at once. Native macOS, and every transfer byte-lossless.">
 <meta property="og:image" content="https://syncmylibs.app/icon.png">
 <meta property="og:url" content="https://syncmylibs.app">
 <style>
@@ -283,14 +283,14 @@ footer .links a:hover { color: var(--ink); }
 </nav>
 
 <header class="wrap" id="download">
-  <p class="kicker rise">Native macOS · Notarized by Apple</p>
+  <p class="kicker rise">Native macOS · Apple silicon</p>
   <h1 class="rise d1">Photos opens one library.<br><em>You have more than one.</em></h1>
   <p class="lede rise d2">SyncMyLibs opens every Apple Photos library you own — side by side. Browse, compare, and move photos between them with faces, people, keywords, albums, GPS, dates and edits intact.</p>
   <div class="cta-row rise d3">
     <a class="cta" href="https://github.com/amerruki/syncmylibs-site/releases" aria-describedby="sysreq">
       Download for macOS <small>· coming soon</small>
     </a>
-    <p class="sysreq" id="sysreq">macOS 15+ · Apple silicon · one-time purchase</p>
+    <p class="sysreq" id="sysreq">macOS 26+ · Apple silicon · one-time purchase</p>
   </div>
 
   <div class="diorama rise d4" aria-hidden="true">
@@ -324,7 +324,7 @@ footer .links a:hover { color: var(--ink); }
     <p class="fact">
       transfers preserve → <b>faces &amp; people</b> · <b>keywords</b> · <b>albums &amp; folders</b> · <b>GPS</b> · <b>dates</b> · <b>edits</b> · <b>RAW+JPEG pairs</b><br>
       re-encoding of your originals → <b>never</b><br>
-      backup before every risky write → <b>always</b>
+      snapshot before a merge, move or bulk edit → <b>on by default</b>
     </p>
   </div>
 </section>
@@ -340,13 +340,13 @@ footer .links a:hover { color: var(--ink); }
     </div>
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><circle cx="16" cy="15" r="5.5"/></svg>
-      <h3>Five-way duplicate hunt</h3>
-      <p>Five detection algorithms — including Apple's own perceptual hash — find real dupes across libraries, safely.</p>
+      <h3>Four ways to find duplicates</h3>
+      <p>Content hash, visual similarity, Apple's own hash, or plain filename. The default groups by content, so a library you already merged once still recognises its own photos.</p>
     </div>
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.2-3.8 4-5.6 7.5-5.6s6.3 1.8 7.5 5.6"/></svg>
       <h3>People, managed</h3>
-      <p>Rename, merge, hide, and repair People across libraries — operations Photos reserves for one library at a time.</p>
+      <p>Rename, merge, hide and repair People in your secondary libraries, and rename them in the system one. Photos gives you this for a single library at a time.</p>
     </div>
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
@@ -356,7 +356,7 @@ footer .links a:hover { color: var(--ink); }
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
       <h3>Date repair</h3>
-      <p>Recover real capture dates from filenames, embedded text, and metadata — WhatsApp exports included.</p>
+      <p>Recover real capture dates from filenames: Unix timestamps, ISO 8601, screenshots, Snowflake IDs and WhatsApp exports, among forty patterns in all.</p>
     </div>
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9 12l2 2 4-4.5"/></svg>
@@ -366,17 +366,17 @@ footer .links a:hover { color: var(--ink); }
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>
       <h3>Undo that means it</h3>
-      <p>Snapshots before destructive operations. Merges, deletes, and transfers can be walked back.</p>
+      <p>Cmd+Z reverses the granular edits, and a snapshot taken before a merge, move or bulk edit rolls the whole library back.</p>
     </div>
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 15A4.5 4.5 0 0 1 7 6a5.5 5.5 0 0 1 10.6 1.5A4 4 0 0 1 17 15z"/><path d="M12 12v7m-2.5-2.5L12 19l2.5-2.5"/></svg>
       <h3>iCloud aware</h3>
-      <p>Works with your iCloud system library through Apple's own PhotoKit — changes sync to your other devices properly.</p>
+      <p>Writes to your iCloud system library go through Apple's own PhotoKit, so Photos sees them and syncs them the way it syncs its own.</p>
     </div>
     <div class="feature">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 13.5h5L11 21l8-10.5h-5z"/></svg>
       <h3>Fast where it counts</h3>
-      <p>Library-to-library merges run about 12× faster than the AppleScript bridges other tools rely on.</p>
+      <p>Merges read and write the library databases directly rather than driving Photos from the outside, and a duplicate scan sizes files before it ever hashes a byte.</p>
     </div>
   </div>
 </section>
@@ -388,16 +388,18 @@ footer .links a:hover { color: var(--ink); }
     <table>
       <thead><tr><th scope="col">Capability</th><th scope="col">SyncMyLibs</th><th scope="col">PowerPhotos</th></tr></thead>
       <tbody>
-        <tr><td>Faces &amp; People survive transfer</td><td class="yes">✓</td><td class="no">—</td></tr>
-        <tr><td>Duplicate detection algorithms</td><td class="yes">5</td><td class="no">1</td></tr>
+        <tr><td>Faces &amp; People survive transfer <sup>1</sup></td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Duplicate detection methods</td><td class="yes">4</td><td class="no">1</td></tr>
         <tr><td>People management (rename, merge, hide)</td><td class="yes">✓</td><td class="no">—</td></tr>
         <tr><td>Screenshot tagging with cross-device sync</td><td class="yes">✓</td><td class="no">—</td></tr>
         <tr><td>Date extraction &amp; repair</td><td class="yes">✓</td><td class="no">—</td></tr>
-        <tr><td>Direct library engine (no AppleScript bridge)</td><td class="yes">✓</td><td class="no">—</td></tr>
+        <tr><td>Direct library engine, not an AppleScript bridge <sup>2</sup></td><td class="yes">✓</td><td class="no">—</td></tr>
         <tr><td>Mac App Store distribution</td><td class="no">—</td><td class="yes">✓</td></tr>
       </tbody>
     </table>
-    <p class="note">App Store distribution is a deliberate trade: sandboxed apps can't reach other libraries' databases. SyncMyLibs ships signed and notarized by Apple instead — same Gatekeeper screening, more capability.</p>
+    <p class="note">App Store distribution is a deliberate trade: sandboxed apps can't reach other libraries' databases. SyncMyLibs will ship signed and notarized by Apple instead, which is the same Gatekeeper screening with more capability.</p>
+    <p class="note"><sup>1</sup> Faces and People travel into a secondary library. Apple gives no API for writing face data into the iCloud system library, so a transfer in that direction carries everything else and Photos re-detects the faces itself.<br>
+      <sup>2</sup> The library engines are direct SQLite and PhotoKit. One operation still goes through Photos' own scripting interface: writing keywords to the iCloud system library, which has no other supported vehicle.</p>
   </div>
 </section>
 
@@ -407,8 +409,8 @@ footer .links a:hover { color: var(--ink); }
     <p class="sub">Every engineering decision starts from one rule: no data loss, ever.</p>
     <div class="badges">
       <div class="badge"><b>0</b><span>re-encodes of your originals — transfers are byte-identical</span></div>
-      <div class="badge"><b>Backup first</b><span>a safety copy precedes every risky write, automatically</span></div>
-      <div class="badge"><b>Notarized</b><span>signed with a Developer ID and screened by Apple on every release</span></div>
+      <div class="badge"><b>Snapshot first</b><span>a copy-on-write safety copy before every merge, move and bulk edit, on by default</span></div>
+      <div class="badge"><b>Notarized</b><span>every release will be signed with a Developer ID and screened by Apple</span></div>
     </div>
   </div>
 </section>
@@ -417,11 +419,11 @@ footer .links a:hover { color: var(--ink); }
   <h2>Questions, answered.</h2>
   <details>
     <summary>Is it safe to point this at my real library?</summary>
-    <p>Yes — that's the design constraint everything else serves. Originals are never re-encoded, risky operations snapshot first, writes to your iCloud system library go through Apple's own PhotoKit, and destructive actions have working undo.</p>
+    <p>Yes, that's the design constraint everything else serves. Originals are never re-encoded, writes to your iCloud system library go through Apple's own PhotoKit, and granular edits reverse with Cmd+Z. Secondary libraries are snapshotted before a merge, move or bulk edit; your system library is left to Photos and iCloud, which keep their own copies, and a delete there is final.</p>
   </details>
   <details>
     <summary>Does it work with iCloud Photos?</summary>
-    <p>Yes. Your system library keeps syncing normally — changes made through SyncMyLibs propagate to your other devices the same way Photos' own changes do. Offline libraries on external drives work too.</p>
+    <p>Yes. Your system library keeps syncing normally, and changes SyncMyLibs makes through PhotoKit propagate to your other devices the way Photos' own changes do. People edits are the exception: Apple exposes no API for them, so renaming or merging a person in your system library stays on that Mac. Offline libraries on external drives work too.</p>
   </details>
   <details>
     <summary>Why does it need Full Disk Access?</summary>
@@ -429,7 +431,7 @@ footer .links a:hover { color: var(--ink); }
   </details>
   <details>
     <summary>Which Macs does it run on?</summary>
-    <p>macOS 15 (Sequoia) or later on Apple silicon. It's a native Swift app — no Electron, no web views.</p>
+    <p>macOS 26 or later on Apple silicon. It's a native Swift app, no Electron and no web views.</p>
   </details>
   <details>
     <summary>How much will it cost?</summary>
